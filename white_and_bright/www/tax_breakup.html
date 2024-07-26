@@ -1,0 +1,366 @@
+<div class="main-container">
+
+    <!--HEADER SECTION-->
+    <div class="header">
+        <!--MAIN HEADING SECTION-->
+        <h1 class="text-primary">
+            Invoice
+        </h1>
+
+        <!-- HEADER TABLE AND LOGO SECTION-->
+        <div class="header-table-and-logo-section">
+            <!-- HEADER TABLE -->
+            <div class="herder-table text-secondary">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Invoice#
+                            </td>
+                            <td>
+                                <b class="text-black">
+                                    {{doc.name or ""}}
+                                </b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Invoice Date
+                            </td>
+                            <td>
+                                <b class="text-black">
+                                    {{frappe.format(doc.posting_date, {'fieldtype': 'Date'}) or ""}}
+                                </b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Due Date
+                            </td>
+                            <td>
+                                <b class="text-black">
+                                    {{frappe.format(doc.due_date, {'fieldtype': 'Date'}) or ""}}
+                                </b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- HEADER LOGO -->
+            <div class="header-logo">
+                <img src="/assets/white_and_bright/images/White And Bright Logo 1.jpg" alt="">
+            </div>
+        </div>
+
+        <!--HEADER DETAILS SECTION-->
+        <div class="header-details">
+            <!-- BILLED BY -->
+            <div class="details-card billed-by">
+                <h6 class="text-primary">
+                    Billed by
+                </h6>
+                <p class="billed-by-company">
+                    <b>
+                        {{doc.company or ""}}
+                    </b>
+                </p>
+                <p class="billed-by-address-line-1">
+                    {{ frappe.db.get_value("Address",doc.company_address,"address_line1") or ""}}
+                </p>
+                <p class="billed-by-address-line-2">
+                    {{ frappe.db.get_value("Address",doc.company_address,"address_line2") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.company_address,"city") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.company_address,"state") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.company_address,"country") or ""}}{{ " -
+                    "+frappe.db.get_value("Address",doc.company_address,"pincode") or ""}}
+                </p>
+                <p class="billed-by-gstin">
+                    <b>
+                        <!-- GSTIN: -->
+                        TRN:
+                    </b>
+                    <span>
+                        100576292500003
+                        <!-- {{ frappe.db.get_value("Address",doc.company_address,"gstin") or ""}} -->
+                    </span>
+                </p>
+                <p class="billed-by-pan">
+                    <b>
+                        PAN:
+                    </b>
+                    <span>
+                        PAN NUMBER
+                    </span>
+                </p>
+            </div>
+
+            <!-- BILLED TO -->
+            <div class="details-card billed-to">
+                <h6 class="text-primary">
+                    Billed to
+                </h6>
+                <p class="billed-to-company">
+                    <b>
+                        {{doc.customer}}
+                    </b>
+                </p>
+                <p class="billed-to-address-line-1">
+                    {{ frappe.db.get_value("Address",doc.shipping_address_name,"address_line1") or ""}}
+                </p>
+                <p class="billed-by-address-line-2">
+                    {{ frappe.db.get_value("Address",doc.shipping_address_name,"address_line2") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.shipping_address_name,"city") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.shipping_address_name,"state") or ""}}{{ ",
+                    "+frappe.db.get_value("Address",doc.shipping_address_name,"country") or ""}}{{ " -
+                    "+frappe.db.get_value("Address",doc.shipping_address_name,"pincode") or ""}}
+                </p>
+                <p class="billed-to-gstin">
+                    <b>
+                        <!-- GSTIN: -->
+                        TRN:
+                    </b>
+                    <span>
+                        100576292500003
+                        <!-- {{ frappe.db.get_value("Address",doc.shipping_address_name,"gstin") or ""}} -->
+                    </span>
+                </p>
+                <p class="billed-to-pan">
+                    <b>
+                        PAN:
+                    </b>
+                    <span>
+                        PAN NUMBER
+                    </span>
+                </p>
+            </div>
+
+            <!-- PLACE OF SUPPLY -->
+            <div class="place-of-supply">
+                <span>
+                    Place of Supply
+                </span>
+                <span>
+                    <b>
+                        Abu Dhabi
+                    </b>
+                </span>
+            </div>
+
+            <!-- COUNTRY OF SUPPLY -->
+            <div class="country-of-supply">
+                <span>
+                    Country of Supply
+                </span>
+                <span>
+                    <b>
+                        UAE
+                    </b>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ITEM TABLE SECTION -->
+    <div class="item-table-container">
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th class="text-left">
+                        Item #/Item Description
+                    </th>
+                    <th class="text-center">
+                        QTY
+                    </th>
+                    <th class="text-center">
+                        VAT %
+                    </th>
+                    <th class="text-center">
+                        Taxable Amount
+                    </th>
+                    <th class="text-center">
+                        VAT Amount
+                    </th>
+                    <th class="text-right">
+                        Amount
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                 {% set item_data = frappe.call('white_and_bright.api.item_wise_tax_sales_invoice', docname=doc.name) %} 
+                 {% if item_data %} 
+                    {% for name,items in item_data.items() %} 
+                        <tr>
+                            <td class="text-left">
+                                {{ loop.index or 0 }}. {{items.item_code or ""}}
+                            </td>
+                            <td class="text-center">
+                                {{items.qty or 0}}
+                            </td>
+                            <td class="text-center">                                
+                                {{frappe.format(items.tax_rate or 0,{"fieldtype":"Int"}) or 0}}%
+                            </td>
+                            <td class="text-center">
+                                {{frappe.format(items.amount or 0,{"fieldtype":"Currency"}) or 0}}
+                            </td>
+                            <td class="text-center">                                
+                                {{frappe.format(items.tax_amount or 0,{"fieldtype":"Currency"}) or 0}}
+                            </td>
+                            <td class="text-center">
+                                {{frappe.format((items.amount or 0)+(items.tax_amount or 0) or 0,{"fieldtype":"Currency"}) or 0}}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BANK AND TOTAL SECTION -->
+    <div class="bank-and-total-section">
+
+        <!-- BANK SECTION -->
+        <div class="bank-section">
+
+            <!-- BANK TABLE -->
+            <div class="bank-table">
+                <h6 class="text-primary">
+                    Bank & Payment Details
+                </h6>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="text-nowrap">
+                                Account Holder Name
+                            </td>
+                            <td>
+                                {{frappe.db.get_value("Bank Account",{"company":doc.company,"is_default":1},"account_name")}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Account Number
+                            </td>
+                            <td>
+                                {{frappe.db.get_value("Bank Account",{"company":doc.company,"is_default":1},"bank_account_no")}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                IFSC
+                            </td>
+                            <td>
+                                IFSC CODE
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Account Type
+                            </td>
+                            <td>
+                                {{frappe.db.get_value("Bank Account",{"company":doc.company,"is_default":1},"account_type")}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Bank
+                            </td>
+                            <td>
+                                {{frappe.db.get_value("Bank Account",{"company":doc.company,"is_default":1},"bank")}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TERMS AND CONDITION -->
+            <div class="terms-and-condition">
+                <h6 class="text-primary">
+                    Terms and Condition
+                </h6>
+                <div class="terms">
+                    {{doc.terms or " Please Select Payments Terms!"}}
+                </div>
+            </div>
+
+            <!-- ADDITIONAL NOTES -->
+            <div class="additional-notes">
+                <h6 class="text-primary">
+                    Additional Notes
+                </h6>
+                <p>
+                    {{doc.custom_additionalnotes_details or ""}}
+                </p>
+            </div>
+        </div>
+
+        <!-- TOTAL SECTION -->
+        <div class="total-section">
+
+            <!-- TOTAL TABLE -->
+            <div class="total-table">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Sub Total
+                            </td>
+                            <td class="text-right">
+                            {{frappe.format(doc.total or 0, {'fieldtype': 'Currency'}) or ""}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="discount">
+                                Discount(10%)
+                            </td>
+                            <td class="text-right discount">
+                            - {{frappe.format(doc.discount_amount or 0, {'fieldtype': 'Currency'}) or ""}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Taxable Amount
+                            </td>
+                            <td class="text-right">
+                            {{frappe.format((doc.total-doc.discount_amount) or 0, {'fieldtype': 'Currency'}) or ""}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                VAT Amount
+                            </td>
+                            <td class="text-right">
+                            {{frappe.format(doc.total_taxes_and_charges or 0, {'fieldtype': 'Currency'}) or ""}}
+                            </td>
+                        </tr>
+                        <tr class="final-total">
+                            <td>
+                                Total
+                            </td>
+                            <td class="text-right font-bold">
+                                {{frappe.format(doc.grand_total or 0, {'fieldtype': 'Currency'}) or ""}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TOTAL IN WORDS -->
+            <div class="total-in-words">
+                <p class="total-in-words-label text-secondary">
+                    Invoice Total(In Words)
+                </p>
+                <p class="total-in-words-content">
+                    {{ frappe.utils.money_in_words(doc.grand_total or 0, doc.currency) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!--FOOTER SECTION-->
+    <div class="footer-section">
+        <p>
+            info@wandb.ae | Phone: +971 4-2524085 | Fax: +971 4-2524062
+        </p>
+    </div>
+</div>
